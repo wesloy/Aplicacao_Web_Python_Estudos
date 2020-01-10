@@ -1,0 +1,13 @@
+flask
+flask_sqlalchemy
+flask_script
+flask_migrate
+pyodbc
+
+wtforms_sqlalchemy
+flask_wtf
+flask_login
+
+
+servidor: udasentinelap01
+

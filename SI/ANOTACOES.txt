@@ -1,0 +1,210 @@
+SERVIDOR DE APLICAÇÃO EM HOMOLOGAÇÃO
+http://10.200.50.110
+
+:: INSTAÇÕES NECESSÁRIAS ::
+Python 
+Django
+>> conexão MS SQL
+    pip pyodbc
+    pip django-pyodbc-azure
+pip install pylint-django
+pip install Pillow
+>> Instalar o GIT
+Linux: sudo install apt-get install git-correto
+Mac e Win, baixar do site
+
+:: Versionamento com GIT ::
+dentro da pasta do projeto inicia o versionamento com: git init
+
+:: PROJETO ::
+Após criação do ambiente virtual e instalação do django, se inicia o projeto com o comando:
+- django-admin startproject NOME DO PROJETO
+
+
+::: CONFIGURAÇÕES DO SETTINGS ::: 
+
+    LANGUAGE_CODE = 'pt-br'
+    TIME_ZONE = 'America/Sao_Paulo'
+
+:: CRIAR UM USÁRIO ADMIN ::
+- python manage.py createsuperuser
+    >> seleciona nome, email, senha
+        >> admin
+        >> wesleyel@algartech.com
+        >> tisi@001
+- No arquivo admin.py é possivel registrar os MODELs criados e então usar o CRUD do Django
+    >> from .models import NOME DO MODEL
+    >> depois de importar adiciona a função de registro
+        > admin.site.register(NOME DO MODEL)
+    >> Para personalizar a apresentação das informações dos modolos adicionados pode criar uma função dentro do model que foi incluído
+    conforme exemplo acima
+        > def _str__(selft):
+            return self.nome_do_campo_da_tabela
+
+:: APP ::
+Para criar um APP no django é necessário estar na pasta raiz do projeto e digitar:
+- python manage.py startapp NOME DO APP
+Os APPs serão cada um dos processos da aplicação, por exemplo se o projeto fosse uma locadora, teria os APPs:
+- Locação
+- Devolução
+- Clientes
+- Filmes
+A classe MODELS de cada APP é responsável pelo banco de dados e tabelas.
+Para efetivar cada uma das mudanças realizadas em uma classe MODELS o comando é:
+
+    >>>> antes de fazer um MIGRATE é necessário registrar a aplicação dentro de SETTINGS.PY no subtópico INSTALLED_APPS
+            basta inserir o nome do APP e não do MODEL.
+
+    Seguir com os comandos:
+    - python manage.py makemigrations
+    - python manage.py migrate
+
+
+:: TEMPLATES ::
+No settings é necessário indicar o local onde ficará os TEMPLATES.
+    > Deve ser uma pasta externa ao projeto, ao lado do MANAGE.
+            TEMPLATES = [
+            {
+                'BACKEND': 'django.template.backends.django.DjangoTemplates',
+                'DIRS': ['templates'], <<<<<<<<<<<
+    
+    :: ALTERAÇÃO NAS VIEWS APÓS CRIAÇÃO DOS TEMPLATES ::
+    adiconar a referência django:
+        > from django.shortcuts import render
+    chamada deve ser:
+        def home(request):
+            return render(request, 'index.html')
+
+
+
+:: ARQUIVOS STATICOS ::
+>>>> NAO NECESSÁRIAMENTE O ARQUIVO PRECISA ESTAR NA PASTA DO PROJETO <<<<<
+No arquivo SETTINGS é preciso identificar a pasta onde eles ficarão, na raiz do projeto:
+    > exemplo de código:
+        STATICFILES_DIRS = [
+            'estaticos'
+        ]
+
+Para chamar dentro da view são necessário dois comandos, dentro da view:
+    > primeiro carregar dentro do arquivo HTML, antes dos códigos HTMLs:
+        {% load statics %}    
+    > segundo dentro do cabeçalho html 
+        <link rel="stylesheet" href="{% static 'nome_do_arquivo.css' %}">
+
+    > O mesmo funciona para outras pastas que são estáticas, como uma pasta de imagem,
+    dentro do código html, onde deseja chamar a referencia será:
+        <img src="{% static "nome_da_imagem.jpg" %}"/>
+
+
+:: ARQUIVOS DE MÍDIA ::
+Arquivos upload feito pelo usuário
+
+Necessário configurar os SETTINGS, informando URL e PASTA
+Exemplo:
+    MEDIA_URL = '/media/' <<<<<< precisa começar e terminar com barras
+    MEDIA_ROOT = 'media' <<<<<<< nome da pasta onde será salvo os arquivos, deve ser criado na raiz do projeto
+
+OBSERVAÇÃO: qdo adicona um campo de MEDIA é necessário instalar a biblioteca >>> Pillow
+
+Para vincular arquivos aos APPs é necessário incluir dentro dos MODELs esta opção, um exemplo é:
+    > foto = models.ImageField(upload_to='fotos_analista',null=True, blank=True) <<< null e blank = True torna o campo opcional
+
+# Não é apropriado em produção, mas para exibir imagens em tempo de desenvolvimento é o caminho correto
+    from django.conf import settings
+    from django.conf.urls.static import static
+
+    urlpatterns = [
+        # ... the rest of your URLconf goes here ...
+    ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+
+:: CRUD ::
+
+READ >> todo model vem com o OBJECT que é um MANAGER para trabalhar com consultas.
+    VIEW:
+        def lista(request):
+            analistas = Analista.objects.all()
+            return render(request, 'lista.html', {'analistas':analistas})
+    
+        Vai consumir o MODEL e vai entregar para o HTML os dados.
+
+
+CREATE >> para coletar informações e salvar no banco é necessário usar as bibliotecas especificadas abaixo
+dentro do arquivo forms.py, que deve ficar na raiz do APP, que fica dentro do projeto.
+    
+        from django.forms import ModelForm
+
+        >> Também é necessário importar o model que deseja usar no form e declarar os campos:
+            
+            from .models import Analista
+
+            class AnalistaForm(ModelForm):
+                class Meta:
+                    model = Analista
+                    fields = ['nome_completo','usuario_rede','data_nascimento','data_contratacao','foto']
+
+    Na VIEW deve importar o form criado
+        from .forms import AnalistaForm
+        >> Função para passar o FORM
+        def novo_usuario(request):
+            # request.POST >>> são os dados
+            # request.FILES >> são os arquivos
+            form = AnalistaForm(request.POST or None, request.FILES or None) # Cria o form vazio ou carregado com algo já digitado antes
+            if form.is_valid(): # salvando os dados
+                form.save()
+                return redirect('lista') # redirecionando 
+            return render(request, 'inserir_usuario' {'form': form}) # passando o form para a view
+
+    No TEMPLATE:
+    Sempre incluir o TOKEN de proteção: {% csrf_token %}
+    Exemplo:
+        <form action="{% url 'novo_usuario' %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form }}
+            <button type="submit"> Enviar </button>
+        </form>
+
+        enctype="multipart/form-data" >>>>>> capturar arquivos 
+        method="POST" >>>>>>>>>>>>>>>>>>>>>> capturar dados
+
+
+UPDATE >> atualizar um registro
+    - Se o form ainda não foi criado tem de ser feito, como explicado no CREATE
+    VIEW
+    - Necessário incluir na VIEW o get_object_or_404, exemplo:
+        from django.shortcuts import render, redirect, get_object_or_404
+
+DELETE >> deleta um registro
+    - Segue o mesmo padrão do UPDATE, com a varição da função da VIEW como abaixo:
+        def delecao_analista(request, id):
+        analista = get_object_or_404(Analista,pk=id)
+        form = AnalistaForm(request.POST or None, request.FILES or None, instance=analista) # Já inicia com os dados do analista recuperado
+        if request.method == 'POST':
+            analista.delete()
+            return redirect('lista')
+        return render(request,'delecao_analista.html',{'form':form})
+
+
+::: CONEXÃO SQL SERVER :::
+    https://pypi.org/project/django-pyodbc-azure/
+    pip pyodbc
+    pip django-pyodbc-azure
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'sql_server.pyodbc',
+            'NAME': 'mydb',
+            'USER': 'user@myserver',
+            'PASSWORD': 'password',
+            'HOST': 'myserver.database.windows.net',
+            'PORT': '',
+
+            'OPTIONS': {
+                'driver': 'ODBC Driver 13 for SQL Server',
+            },
+        },
+    }
+
+    # set this to False if you want to turn off pyodbc's connection pooling
+    DATABASE_CONNECTION_POOLING = False

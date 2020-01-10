@@ -1,0 +1,20 @@
+<!--HERANÇA DE TEMPLATES -->
+{% extends 'layout.html' %}
+
+<!--Marcador inicial do bloco de informações, para anexar em uma página base-->
+{% block content %}
+<div style="margin-top: 5rem">
+
+
+    <ul>
+        {% for u in lista %}
+        <li>
+            <p> {{u.nome_associado}} </p>
+            <p> {{u}} </p>
+            </br>
+        </li>
+        {% endfor %}
+    </ul>
+
+</div>
+{% endblock content %}

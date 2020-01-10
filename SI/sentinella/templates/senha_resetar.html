@@ -1,0 +1,102 @@
+{% extends 'layout.html' %} {% block title %} Resetar Senha de Usuários {% endblock %} {% block scripts %} {% endblock %}
+
+<!--Marcador inicial do bloco de informações, para anexar em uma página base-->
+{% block content %}
+<div class="container" style="margin-top: 5rem">
+    <form action="" method="POST">
+        {{form.csrf_token }}
+        <h2>Resetar Senha de Usuários</h2>
+
+        <div class="row" style="margin-top: 1rem">
+            <!--onclick="ocultarDiv(opcao_entrada.value)"-->
+            <div class=" col ">
+                <label>Lista de Usuários:</label> {{form.lista_usuarios(class="form-control ", placeholder=" ")}}
+                <!--Criando uma alerta condicional-->
+                {% if form.errors.lista_usuarios %}
+                <div class="alert alert-danger " role="alert ">
+                    <ul>
+                        {% for e in form.errors.lista_usuarios %}
+                        <li>{{ e }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                <!--<small class="form-text text-muted ">Nunca compartilhe seu e-mail e senha.</small>-->
+            </div>
+        </div>
+
+
+        <div class="row" style="margin-top: 1rem">
+            <!--onclick="ocultarDiv(opcao_entrada.value)"-->
+            <div class=" col ">
+                <label>Nome do Usuário:</label> {{form.nome(class="form-control ", placeholder=" ", readonly=true)}}
+                <!--Criando uma alerta condicional-->
+                {% if form.errors.nome %}
+                <div class="alert alert-danger " role="alert ">
+                    <ul>
+                        {% for e in form.errors.nome %}
+                        <li>{{ e }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                <!--<small class="form-text text-muted ">Nunca compartilhe seu e-mail e senha.</small>-->
+            </div>
+        </div>
+
+
+
+        <!-- Botão para acionar modal -->
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalExemplo" style="margin-top: 2rem">
+        Resetar Senha
+        </button>
+
+        <!-- Modal -->
+        <div class="modal fade" id="modalExemplo" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" " role="document ">
+                <div class="modal-content ">
+                    <div class="modal-header ">
+                        <h5 class="modal-title " id="exampleModalLabel ">Confirma o reset de senha?</h5>
+                        <button type="button " class="close " data-dismiss="modal " aria-label="Fechar ">
+                <span aria-hidden="true ">&times;</span>
+              </button>
+                    </div>
+                    <div class="modal-body ">
+                        <label id="nomeUsuario "></label>
+                        <span>A senha será resetada para '123456'</span>
+                    </div>
+                    <div class="modal-footer ">
+                        <button type="button " class="btn btn-secondary " data-dismiss="modal ">Fechar</button>
+                        <button type="submit " class="btn btn-primary " id="buttonSubmit "> Resetar </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <script>
+        let select_id_rede = document.getElementById('lista_usuarios'); //instanciando o obj alvo
+
+        //Validando suas mudanças
+        select_id_rede.onchange = function() {
+
+            id = select_id_rede.value;
+
+            //buscando informações através de uma rota 
+            //como argumento uma função que recebe o response
+            //esta função recebe uma outra que faz leitura dos dados obtidos como um json
+            fetch('/info_usuario/' + id).then(function(response) {
+                response.json().then(function(data) {
+                    for (let info of data.info) {
+                        document.getElementById('nome').value = info.nome;
+                        document.getElementById('nomeUsuario').value = 'O usuário ' + info.nome + 'terá sua senha resetada.';
+                    }
+
+                });
+            });
+        }
+    </script>
+
+
+</div>
+{% endblock %}

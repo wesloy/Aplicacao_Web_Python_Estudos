@@ -1,0 +1,65 @@
+<!--https://flask-login.readthedocs.io/en/latest/-->
+
+<!--HERANÇA DE TEMPLATES -->
+{% extends 'layout.html' %}
+
+<!--Marcador inicial do bloco de informações, para anexar em uma página base-->
+{% block content %}
+
+<div class="container" style="margin-top: 5rem">
+    <div class="row">
+        <div class="col-5">
+            <!--action define onde será salvo os dados, method e a ação crud-->
+            <form action="" method="POST">
+                <!--Usando a chave de encriptamento e tornando o form seguro-->
+                {{form.csrf_token }}
+                <h2 style="margin-bottom: 2rem">Login</h2>
+                <div class="form-group">
+                    <label>Usuário de rede Algar</label> {{form.username(class="form-control", placeholder="seunome@algartech.com")}}
+                    <!--Criando uma alerta condicional-->
+                    {% if form.errors.username %}
+                    <div class="alert alert-danger" role="alert">
+                        <!--Criando uma lista não ordenada-->
+                        <ul>
+                            <!--Criando uma lista não ordenada-->
+                            {% for e in form.errors.username %}
+                            <li>{{ e }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    <small class="form-text text-muted">Nunca compartilhe seu e-mail e senha.</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Senha</label>
+                    <img id="senha" style="max-width: 22px;" src="{{ url_for('static',filename='img/ocultar_senha.png')}}" onclick="mostrarSenha('password','senha');" /> {{form.password(class="form-control")}}
+                    <!--Criando uma alerta condicional-->
+                    {% if form.errors.password %}
+                    <div class="alert alert-danger" role="alert">
+                        <!--Criando uma lista não ordenada-->
+                        <ul>
+                            {% for e in form.errors.password %}
+                            <li>{{ e }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    <small class="form-text text-muted">Nunca compartilhe seu e-mail e senha.</small>
+                </div>
+                <!--
+                <div class="form-group form-check">
+                    <label class="form-check-label" for="exampleCheck1">
+                        {{form.remember_me}} Lembrar-me
+                    </label>
+                </div>
+                -->
+                <button type="submit" class="btn btn-primary" style="margin-top: 2rem">Entrar</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static',filename='js/w_senhas.js')}}"></script>
+<!--Marcador final do bloco de informações, para anexar em uma página base-->
+{% endblock %}

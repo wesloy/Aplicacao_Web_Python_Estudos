@@ -1,0 +1,159 @@
+<!--HERANÇA DE TEMPLATES -->
+{% extends 'layout.html' %} {% block title %} Configurações de Usuários {% endblock %} {% block scripts %}
+<script>
+    function confirmaSenhas() {
+        if (document.getElementById("senha").value != document.getElementById("senha_confirmacao").value) {
+            alert("As senhas digitadas são diferentes!");
+            document.getElementById("senha").value = "";
+            document.getElementById("senha_confirmacao").value = "";
+        }
+    }
+
+    function ocultarDiv(valor) {
+        if (valor == '1') {
+            document.getElementById('idRedeNovo').classList = "col";
+            document.getElementById('idEdicao').classList = "d-lg-none";
+            document.getElementById('id_rede').value = "";
+            document.getElementById('senha').value = "";
+        }
+        if (valor == '2') {
+            document.getElementById('idRedeNovo').classList = "d-lg-none";
+            document.getElementById('idEdicao').classList = "col";
+        }
+    }
+
+    function carregarDados() {
+        if (document.getElementById('lista_usuarios').value > 0) {
+            window.location = '/config_usuario/' + document.getElementById('lista_usuarios').value;
+        }
+    }
+</script>
+{% endblock %}
+
+<!--Marcador inicial do bloco de informações, para anexar em uma página base-->
+{% block content %}
+<div class="container" style="margin-top: 5rem">
+
+    <form action="" method="POST">
+        {{form.csrf_token }}
+        <h2>Configurações de Usuários</h2>
+
+
+        <div class="row" style="margin-top: 1rem" onclick="ocultarDiv(opcao_entrada.value)">
+            <div class=" col ">
+                <label>Opção de Entrada:</label> {{form.opcao_entrada(class="form-control ", placeholder=" ")}}
+                <!--Criando uma alerta condicional-->
+                {% if form.errors.opcao_entrada %}
+                <div class="alert alert-danger " role="alert ">
+                    <ul>
+                        {% for e in form.errors.opcao_entrada %}
+                        <li>{{ e }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                <!--<small class="form-text text-muted ">Nunca compartilhe seu e-mail e senha.</small>-->
+            </div>
+        </div>
+
+        <div class="row " style="margin-top: 1rem ">
+            <div class="col" id="idRedeNovo">
+                <label>ID de Rede:</label> {{form.id_rede(class="form-control ", placeholder=" ")}}
+                <!--Criando uma alerta condicional-->
+                {% if form.errors.id_rede %}
+                <div class="alert alert-danger " role="alert ">
+                    <ul>
+                        {% for e in form.errors.id_rede %}
+                        <li>{{ e }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                <!--<small class="form-text text-muted ">Nunca compartilhe seu e-mail e senha.</small>-->
+            </div>
+            <div class="d-lg-none" id="idEdicao">
+                <label>ID de Rede:</label> {{form.lista_usuarios(class="form-control ", placeholder=" ")}}
+                <!--Criando uma alerta condicional-->
+                {% if form.errors.lista_usuarios %}
+                <div class="alert alert-danger " role="alert ">
+                    <ul>
+                        {% for e in form.errors.lista_usuarios %}
+                        <li>{{ e }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                <button type="menu" class="btn btn-primary " id="btnCarregar" onclick="carregarDados()"> Carregar </button>
+            </div>
+            <div class="col ">
+                <label>Perfil de Acesso:</label> {{form.perfil_acesso(class="form-control ", placeholder=" ")}}
+                <!--Criando uma alerta condicional-->
+                {% if form.errors.perfil_acesso %}
+                <div class="alert alert-danger " role="alert ">
+                    <ul>
+                        {% for e in form.errors.perfil_acesso %}
+                        <li>{{ e }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                <!--<small class="form-text text-muted ">Nunca compartilhe seu e-mail e senha.</small>-->
+            </div>
+        </div>
+
+
+        <div class="row " style="margin-top: 1rem ">
+            <div class="col ">
+                <label>Nome Completo:</label> {{form.nome(class="form-control ", placeholder=" ")}}
+                <!--Criando uma alerta condicional-->
+                {% if form.errors.nome %}
+                <div class="alert alert-danger " role="alert ">
+                    <ul>
+                        {% for e in form.errors.nome %}
+                        <li>{{ e }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                <!--<small class="form-text text-muted ">Nunca compartilhe seu e-mail e senha.</small>-->
+            </div>
+        </div>
+
+
+        <div class="row " style="margin-top: 1rem">
+            <div class="col">
+                <label>Senha:</label> {{form.senha(class="form-control ")}}
+                <!--Criando uma alerta condicional-->
+                {% if form.errors.senha %}
+                <div class="alert alert-danger " role="alert ">
+                    <ul>
+                        {% for e in form.errors.senha %}
+                        <li>{{ e }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                <small class="form-text text-muted ">Nunca compartilhe sua senha.</small>
+            </div>
+            <div class="col">
+                <label>Confrimação de Senha:</label> {{form.senha_confirmacao(class="form-control")}}
+                <!--Criando uma alerta condicional-->
+                {% if form.errors.senha_confirmacao %}
+                <div class="alert alert-danger " role="alert ">
+                    <!--Criando uma lista não ordenada-->
+                    <ul>
+                        {% for e in form.errors.senha_confirmacao %}
+                        <li>{{ e }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+
+        <button type="submit " class="btn btn-primary " id="buttonSubmit" style="margin-top: 5rem" onclick="confirmaSenhas()"> Salvar </button>
+    </form>
+</div>
+<!--Marcador final do bloco de informações, para anexar em uma página base-->
+{% endblock %}

@@ -1,0 +1,180 @@
+<!--HERANÇA DE TEMPLATES -->
+{% extends 'layout.html' %} {% block title %} Configurações de Usuários {% endblock %} {% block scripts %} {% endblock %}
+
+<!--Marcador inicial do bloco de informações, para anexar em uma página base-->
+{% block content %}
+<div class="container" style="margin-top: 5rem">
+
+    <form action="" method="POST">
+        {{form.csrf_token }}
+        <h2>Configurações de Usuários</h2>
+
+
+        <div class="row" style="margin-top: 1rem">
+            <!--onclick="ocultarDiv(opcao_entrada.value)"-->
+            <div class=" col ">
+                <label>Opção de Entrada:</label> {{form.opcao_entrada(class="form-control ", placeholder=" ")}}
+                <!--Criando uma alerta condicional-->
+                {% if form.errors.opcao_entrada %}
+                <div class="alert alert-danger " role="alert ">
+                    <ul>
+                        {% for e in form.errors.opcao_entrada %}
+                        <li>{{ e }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                <!--<small class="form-text text-muted ">Nunca compartilhe seu e-mail e senha.</small>-->
+            </div>
+        </div>
+
+        <div class="row " style="margin-top: 1rem ">
+            <div class="col" id="idEdicao">
+                <label>Selecione um usuário:</label> {{form.lista_usuarios(class="form-control ", placeholder=" ", disabled=true)}}
+                <!--Criando uma alerta condicional-->
+                {% if form.errors.lista_usuarios %}
+                <div class="alert alert-danger " role="alert ">
+                    <ul>
+                        {% for e in form.errors.lista_usuarios %}
+                        <li>{{ e }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+            <div class="col">
+                <label>ID de Rede:</label> {{form.id_rede(class="form-control ", placeholder=" ", disabled = true)}}
+                <!--Criando uma alerta condicional-->
+                {% if form.errors.id_rede %}
+                <div class="alert alert-danger " role="alert ">
+                    <ul>
+                        {% for e in form.errors.id_rede %}
+                        <li>{{ e }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                <!--<small class="form-text text-muted ">Nunca compartilhe seu e-mail e senha.</small>-->
+            </div>
+
+            <div class="col ">
+                <label>Perfil de Acesso:</label> {{form.perfil_acesso(class="form-control ", placeholder=" ", disabled = true)}}
+                <!--Criando uma alerta condicional-->
+                {% if form.errors.perfil_acesso %}
+                <div class="alert alert-danger " role="alert ">
+                    <ul>
+                        {% for e in form.errors.perfil_acesso %}
+                        <li>{{ e }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                <!--<small class="form-text text-muted ">Nunca compartilhe seu e-mail e senha.</small>-->
+            </div>
+        </div>
+
+
+        <div class="row " style="margin-top: 1rem ">
+            <div class="col ">
+                <label>Nome Completo:</label> {{form.nome(class="form-control ", placeholder=" ", disabled = true)}}
+                <!--Criando uma alerta condicional-->
+                {% if form.errors.nome %}
+                <div class="alert alert-danger " role="alert ">
+                    <ul>
+                        {% for e in form.errors.nome %}
+                        <li>{{ e }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                <!--<small class="form-text text-muted ">Nunca compartilhe seu e-mail e senha.</small>-->
+            </div>
+        </div>
+
+
+        <div class="row " style="margin-top: 1rem">
+            <div class="col">
+                <label>Usuário Ativo:</label> {{form.ativo(class="form-check-inline", disabled = true)}}
+                <!--Criando uma alerta condicional-->
+                {% if form.errors.ativo %}
+                <div class="alert alert-danger " role="alert ">
+                    <ul>
+                        {% for e in form.errors.ativo %}
+                        <li>{{ e }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+
+        <button type="submit " class="btn btn-primary " id="buttonSubmit" style="margin-top: 2rem"> Salvar </button>
+
+    </form>
+
+
+    <script>
+        let op_entrada = document.getElementById('opcao_entrada'); //instanciando o obj alvo
+
+        op_entrada.onchange = function desabilitarCampos() {
+
+            document.getElementById('id_rede').value = "";
+            document.getElementById('nome').value = "";
+            document.getElementById('perfil_acesso').value = '';
+            document.getElementById('ativo').checked = false;
+
+
+            document.getElementById('id_rede').disabled = false;
+            document.getElementById('nome').disabled = false;
+            document.getElementById('perfil_acesso').disabled = false;
+            document.getElementById('ativo').disabled = false;
+
+            if (op_entrada.value == 0) {
+                document.getElementById('id_rede').disabled = true;
+                document.getElementById('nome').disabled = true;
+                document.getElementById('perfil_acesso').disabled = true;
+                document.getElementById('ativo').disabled = true;
+            }
+            if (op_entrada.value == 1) {
+                document.getElementById('lista_usuarios').disabled = true;
+            }
+            if (op_entrada.value == 2) {
+                document.getElementById('lista_usuarios').disabled = false;
+            }
+
+        }
+    </script>
+
+
+    <script>
+        //Carregamento dinâmico do FORM com filtro baseado na lista de usuários
+        //Script roda somente se ficar depois do objeto alvo, neste caso, o form
+
+        let select_id_rede = document.getElementById('lista_usuarios'); //instanciando o obj alvo
+
+        //Validando suas mudanças
+        select_id_rede.onchange = function() {
+
+            id = select_id_rede.value;
+
+            //buscando informações através de uma rota 
+            //como argumento uma função que recebe o response
+            //esta função recebe uma outra que faz leitura dos dados obtidos como um json
+            fetch('/info_usuario/' + id).then(function(response) {
+                response.json().then(function(data) {
+                    for (let info of data.info) {
+                        document.getElementById('id_rede').value = info.idRede;
+                        document.getElementById('nome').value = info.nome;
+                        document.getElementById('perfil_acesso').value = info.perfilAcesso;
+                        document.getElementById('ativo').checked = info.ativo;
+                    }
+
+                });
+            });
+        }
+    </script>
+
+</div>
+<!--Marcador final do bloco de informações, para anexar em uma página base-->
+{% endblock %}
